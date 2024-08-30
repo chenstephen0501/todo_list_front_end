@@ -5,8 +5,7 @@ import axios from 'axios'
 import { ref, onMounted } from 'vue'
 
 const todos = ref([])
-const baseUrl = 'https://todolistpy.zeabur.app'
-// const baseUrl = 'http://localhost:8000'
+const baseUrl = import.meta.env.VITE_API_BASE_URL
 const token = localStorage.getItem("accessToken")
 
 onMounted(async () => {

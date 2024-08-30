@@ -8,8 +8,7 @@ const email = ref('')
 const username = ref('')
 const password = ref('')
 const router = useRouter()
-const baseUrl = 'https://todolistpy.zeabur.app'
-// const baseUrl = 'http://localhost:8000'
+const baseUrl = import.meta.env.VITE_API_BASE_URL
 
 const registerSubmit = async () => {
   try {
