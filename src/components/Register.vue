@@ -1,14 +1,19 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, h } from 'vue'
 import { useRouter } from 'vue-router'
 import { store } from '../store'
 import axios from 'axios'
+import ErrorToast from './toastNotifications/ErrorToast.vue'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
 const email = ref('')
 const username = ref('')
 const password = ref('')
 const router = useRouter()
 const baseUrl = import.meta.env.VITE_API_BASE_URL
+const showOverlay = ref(false)
+
 
 const registerSubmit = async () => {
   try {
@@ -17,14 +22,43 @@ const registerSubmit = async () => {
       username: username.value,
       password: password.value
     })
+
     router.push(`/users/login`)
   } catch (error) {
-    console.error('Registration failed:', error)
-  }
+    let errorMessage = "An unexpected error occurred. Please try again later."
+
+    if (error.response) {
+      errorMessage = error.response.data.error || error.message || "An error occurred on the server."
+    } else if (error.request) {
+      errorMessage = "No response received from the server. Please check you network connection." 
+    } else if (error.message) {
+      errorMessage = error.message
+    } 
+
+    showOverlay.value = true
+      toast.error(h(ErrorToast, { message: errorMessage }), {
+        position: "top-center",
+        timeout: 5000,
+        closeOnClick: false,
+        pauseOnFocusLoss: true,
+        pauseOnHover: true,
+        draggable: true,
+        draggablePercent: 0.6,
+        showCloseButtonOnHover: false,
+        hideProgressBar: true,
+        closeButton: "button",
+        icon: true,
+        rtl: false,
+        onClose: () => { showOverlay.value = false }
+      })
+
+      errorMessage = ""
+  } 
 }
 </script>
 
 <template>
+  <div v-if="showOverlay" class="overlay"></div>
   <div class="register-container">
     <div class="flex justify-center items-center h-screen bg-gray-100 ">
       <div class="w-full max-w-md p-8 bg-white shadow-md rounded-lg">
@@ -88,5 +122,14 @@ const registerSubmit = async () => {
 
 div {
   background-color: #f7fafc;
+}
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); 
+    z-index: 9999; 
 }
 </style>
